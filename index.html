@@ -142,7 +142,7 @@ html,body{
 
 .field-svg{
 
-    width:min(28vw,320px);
+    width:min(36vw,440px);
     height:auto;
 
     overflow:visible;
@@ -176,15 +176,23 @@ html,body{
 }
 
 /* =========================
-   UNDO BUTTON
+   TOP BUTTONS
 ========================= */
 
-.undo-btn{
+.top-buttons{
 
     position:fixed;
 
     top:12px;
     right:12px;
+
+    display:flex;
+    gap:12px;
+
+    z-index:9999;
+}
+
+.control-btn{
 
     padding:10px 18px;
 
@@ -199,11 +207,9 @@ html,body{
     font-weight:bold;
 
     cursor:pointer;
-
-    z-index:9999;
 }
 
-.undo-btn:active{
+.control-btn:active{
 
     transform:scale(0.96);
 }
@@ -236,6 +242,12 @@ html,body{
         width:11vw;
         height:11vw;
     }
+
+    .control-btn{
+
+        font-size:18px;
+        padding:8px 14px;
+    }
 }
 
 </style>
@@ -243,7 +255,27 @@ html,body{
 
 <body>
 
-<button class="undo-btn" onclick="undo()">↩ 戻す</button>
+<!-- =========================
+     TOP BUTTONS
+========================= -->
+
+<div class="top-buttons">
+
+    <button class="control-btn"
+            onclick="clearBS()">
+
+        BSclr
+
+    </button>
+
+    <button class="control-btn"
+            onclick="undo()">
+
+        ↩ 戻す
+
+    </button>
+
+</div>
 
 <!-- =========================
      LEFT : BSO
@@ -252,10 +284,15 @@ html,body{
 <div class="bso-area">
 
     <!-- BALL -->
+
     <div class="row">
 
         <div class="label"
-             onclick="decrease('ball')">B</div>
+             onclick="decrease('ball')">
+
+            B
+
+        </div>
 
         <div class="lights">
 
@@ -276,10 +313,15 @@ html,body{
     </div>
 
     <!-- STRIKE -->
+
     <div class="row">
 
         <div class="label"
-             onclick="decrease('strike')">S</div>
+             onclick="decrease('strike')">
+
+            S
+
+        </div>
 
         <div class="lights">
 
@@ -296,10 +338,15 @@ html,body{
     </div>
 
     <!-- OUT -->
+
     <div class="row">
 
         <div class="label"
-             onclick="decrease('out')">O</div>
+             onclick="decrease('out')">
+
+            O
+
+        </div>
 
         <div class="lights">
 
@@ -436,6 +483,20 @@ function undo(){
     if(history.length === 0) return;
 
     state = JSON.parse(history.pop());
+
+    render();
+}
+
+/* =========================
+   CLEAR BS
+========================= */
+
+function clearBS(){
+
+    saveHistory();
+
+    state.ball = 0;
+    state.strike = 0;
 
     render();
 }
