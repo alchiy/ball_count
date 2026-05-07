@@ -543,7 +543,10 @@ render();
 ========================= */
 window.addEventListener("load", () => {
     setTimeout(() => {
-        window.dispatchEvent(new Event("resize"));
+        document.body.style.display = "none";
+        requestAnimationFrame(() => {
+            document.body.style.display = "";
+        });
     }, 300);
 });
     
