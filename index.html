@@ -537,7 +537,16 @@ function render(){
 }
 
 render();
-
+    
+/* =========================
+   iPhone PWA Layout Fix
+========================= */
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        window.dispatchEvent(new Event("resize"));
+    }, 300);
+});
+    
 </script>
 
 </body>
