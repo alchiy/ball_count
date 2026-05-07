@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BSO Counter</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body{
+    margin:0;
+    background:#050505;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+    color:white;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.container{
+    width:100vw;
+    height:100vh;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:3vw 5vw;
+}
+
+/* =========================
+   LEFT : BSO
+========================= */
+
+.bso-area{
+    display:flex;
+    flex-direction:column;
+    gap:4vh;
+}
+
+.row{
+    display:flex;
+    align-items:center;
+    gap:2vw;
+}
+
+.label{
+    width:6vw;
+    min-width:60px;
+
+    font-size:min(11vw,120px);
+    font-weight:700;
+
+    text-align:center;
+
+    cursor:pointer;
+    user-select:none;
+}
+
+.lights{
+    display:flex;
+    gap:1.5vw;
+}
+
+.light{
+    width:min(10vw,105px);
+    height:min(10vw,105px);
+
+    border-radius:50%;
+
+    background:#1f1f1f;
+
+    box-shadow:
+        inset 0 0 20px rgba(0,0,0,0.9),
+        0 0 12px rgba(0,0,0,0.7);
+
+    cursor:pointer;
+    transition:0.15s;
+}
+
+/* ON COLORS */
+
+.light.green.on{
+    background:#42ff2f;
+
+    box-shadow:
+        0 0 25px #42ff2f,
+        0 0 55px rgba(66,255,47,0.7),
+        inset 0 0 12px rgba(255,255,255,0.6);
+}
+
+.light.yellow.on{
+    background:#ffe533;
+
+    box-shadow:
+        0 0 25px #ffe533,
+        0 0 55px rgba(255,229,51,0.7),
+        inset 0 0 12px rgba(255,255,255,0.6);
+}
+
+.light.red.on{
+    background:#ff3434;
+
+    box-shadow:
+        0 0 25px #ff3434,
+        0 0 55px rgba(255,52,52,0.7),
+        inset 0 0 12px rgba(255,255,255,0.6);
+}
+
+/* =========================
+   RIGHT : FIELD
+========================= */
+
+.right-area{
+    width:40vw;
+    height:100%;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    position:relative;
+
+    /* 少し下へ */
+    padding-top:6vh;
+}
+
+/* SVG FIELD */
+
+.field-svg{
+    width:min(28vw,320px);
+    height:auto;
+    overflow:visible;
+
+    /* 少し下へ */
+    transform:translateY(24px);
+}
+
+/* diamond line */
+
+.diamond-line{
+    fill:none;
+    stroke:white;
+    stroke-width:6;
+}
+
+/* bases */
+
+.base{
+    fill:#222;
+    stroke:white;
+    stroke-width:5;
+
+    cursor:pointer;
+    transition:0.15s;
+}
+
+.base.on{
+    fill:#ff4040;
+
+    filter:drop-shadow(0 0 12px #ff4040);
+}
+
+/* =========================
+   UNDO BUTTON
+========================= */
+
+.undo-btn{
+    position:fixed;
+
+    top:18px;
+    right:18px;
+
+    padding:10px 20px;
+
+    background:rgba(50,50,50,0.85);
+
+    border:2px solid rgba(255,255,255,0.15);
+    border-radius:16px;
+
+    color:white;
+
+    font-size:26px;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    z-index:999;
+}
+
+.undo-btn:active{
+    transform:scale(0.96);
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width:900px){
+
+    .field-svg{
+        width:38vw;
+    }
+
+    .light{
+        width:11vw;
+        height:11vw;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<button class="undo-btn" onclick="undo()">↩ 戻す</button>
+
+<div class="container">
+
+    <!-- LEFT -->
+    <div class="bso-area">
+
+        <!-- BALL -->
+        <div class="row">
+
+            <div class="label" onclick="decrease('ball')">B</div>
+
+            <div class="lights">
+                <div class="light green" id="b1" onclick="increase('ball')"></div>
+                <div class="light green" id="b2" onclick="increase('ball')"></div>
+                <div class="light green" id="b3" onclick="increase('ball')"></div>
+            </div>
+
+        </div>
+
+        <!-- STRIKE -->
+        <div class="row">
+
+            <div class="label" onclick="decrease('strike')">S</div>
+
+            <div class="lights">
+                <div class="light yellow" id="s1" onclick="increase('strike')"></div>
+                <div class="light yellow" id="s2" onclick="increase('strike')"></div>
+            </div>
+
+        </div>
+
+        <!-- OUT -->
+        <div class="row">
+
+            <div class="label" onclick="decrease('out')">O</div>
+
+            <div class="lights">
+                <div class="light red" id="o1" onclick="increase('out')"></div>
+                <div class="light red" id="o2" onclick="increase('out')"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-area">
+
+        <!-- SVG FIELD -->
+        <svg class="field-svg"
+             viewBox="0 0 300 300">
+
+            <!-- Diamond -->
+            <polygon
+                class="diamond-line"
+                points="150,30 270,150 150,270 30,150"
+            />
+
+            <!-- FIRST -->
+            <rect
+                id="first"
+                class="base"
+                x="225"
+                y="125"
+                width="50"
+                height="50"
+                rx="6"
+                transform="rotate(45 250 150)"
+                onclick="toggleBase('first')"
+            />
+
+            <!-- SECOND -->
+            <rect
+                id="second"
+                class="base"
+                x="125"
+                y="25"
+                width="50"
+                height="50"
+                rx="6"
+                transform="rotate(45 150 50)"
+                onclick="toggleBase('second')"
+            />
+
+            <!-- THIRD -->
+            <rect
+                id="third"
+                class="base"
+                x="25"
+                y="125"
+                width="50"
+                height="50"
+                rx="6"
+                transform="rotate(45 50 150)"
+                onclick="toggleBase('third')"
+            />
+
+        </svg>
+
+    </div>
+
+</div>
+
+<script>
+
+/* =========================
+   STATE
+========================= */
+
+let state = {
+
+    ball:0,
+    strike:0,
+    out:0,
+
+    first:false,
+    second:false,
+    third:false
+};
+
+let history = [];
+
+/* =========================
+   SAVE HISTORY
+========================= */
+
+function saveHistory(){
+
+    history.push(JSON.stringify(state));
+
+    if(history.length > 100){
+        history.shift();
+    }
+}
+
+/* =========================
+   UNDO
+========================= */
+
+function undo(){
+
+    if(history.length === 0) return;
+
+    state = JSON.parse(history.pop());
+
+    render();
+}
+
+/* =========================
+   INCREASE
+========================= */
+
+function increase(type){
+
+    saveHistory();
+
+    // BALL
+    if(type === 'ball'){
+
+        state.ball++;
+
+        if(state.ball >= 4){
+
+            walkAdvance();
+
+            state.ball = 0;
+            state.strike = 0;
+        }
+    }
+
+    // STRIKE
+    if(type === 'strike'){
+
+        state.strike++;
+
+        if(state.strike >= 3){
+
+            state.ball = 0;
+            state.strike = 0;
+        }
+    }
+
+    // OUT
+    if(type === 'out'){
+
+        state.out++;
+
+        if(state.out >= 3){
+
+            state.out = 3;
+
+            render();
+
+            setTimeout(() => {
+
+                saveHistory();
+
+                state.ball = 0;
+                state.strike = 0;
+                state.out = 0;
+
+                state.first = false;
+                state.second = false;
+                state.third = false;
+
+                render();
+
+            }, 300);
+
+            return;
+        }
+    }
+
+    render();
+}
+
+/* =========================
+   DECREASE
+========================= */
+
+function decrease(type){
+
+    saveHistory();
+
+    if(type === 'ball' && state.ball > 0){
+        state.ball--;
+    }
+
+    if(type === 'strike' && state.strike > 0){
+        state.strike--;
+    }
+
+    if(type === 'out' && state.out > 0){
+        state.out--;
+    }
+
+    render();
+}
+
+/* =========================
+   BASE TOGGLE
+========================= */
+
+function toggleBase(base){
+
+    saveHistory();
+
+    state[base] = !state[base];
+
+    render();
+}
+
+/* =========================
+   WALK
+========================= */
+
+function walkAdvance(){
+
+    // 満塁
+    if(state.first && state.second && state.third){
+        return;
+    }
+
+    // 2塁・1塁
+    if(state.second && state.first){
+        state.third = true;
+    }
+
+    // 1塁
+    if(state.first){
+        state.second = true;
+    }
+
+    // batter
+    state.first = true;
+}
+
+/* =========================
+   RENDER
+========================= */
+
+function render(){
+
+    // BALL
+    for(let i=1;i<=3;i++){
+
+        document
+            .getElementById('b'+i)
+            .classList.toggle('on', i <= state.ball);
+    }
+
+    // STRIKE
+    for(let i=1;i<=2;i++){
+
+        document
+            .getElementById('s'+i)
+            .classList.toggle('on', i <= state.strike);
+    }
+
+    // OUT
+    for(let i=1;i<=2;i++){
+
+        document
+            .getElementById('o'+i)
+            .classList.toggle('on', i <= state.out);
+    }
+
+    // BASES
+    document
+        .getElementById('first')
+        .classList.toggle('on', state.first);
+
+    document
+        .getElementById('second')
+        .classList.toggle('on', state.second);
+
+    document
+        .getElementById('third')
+        .classList.toggle('on', state.third);
+}
+
+render();
+
+</script>
+
+</body>
+</html>
