@@ -12,7 +12,7 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-body{
+html, body{
     margin:0;
     background:#050505;
     overflow:hidden;
@@ -26,7 +26,9 @@ body{
 
 .container{
     width:100vw;
-    height:100vh;
+
+    /* iPhone対策 */
+    min-height:100svh;
 
     display:flex;
     justify-content:space-between;
@@ -43,6 +45,9 @@ body{
     display:flex;
     flex-direction:column;
     gap:4vh;
+
+    /* 少し上へ */
+    transform:translateY(-2vh);
 }
 
 .row{
@@ -128,7 +133,6 @@ body{
 
     position:relative;
 
-    /* 少し下へ */
     padding-top:6vh;
 }
 
@@ -139,11 +143,10 @@ body{
     height:auto;
     overflow:visible;
 
-    /* 少し下へ */
     transform:translateY(24px);
 }
 
-/* diamond line */
+/* diamond */
 
 .diamond-line{
     fill:none;
@@ -269,7 +272,6 @@ body{
     <!-- RIGHT -->
     <div class="right-area">
 
-        <!-- SVG FIELD -->
         <svg class="field-svg"
              viewBox="0 0 300 300">
 
@@ -408,29 +410,16 @@ function increase(type){
 
         state.out++;
 
+        // 3アウトで即リセット
         if(state.out >= 3){
 
-            state.out = 3;
+            state.ball = 0;
+            state.strike = 0;
+            state.out = 0;
 
-            render();
-
-            setTimeout(() => {
-
-                saveHistory();
-
-                state.ball = 0;
-                state.strike = 0;
-                state.out = 0;
-
-                state.first = false;
-                state.second = false;
-                state.third = false;
-
-                render();
-
-            }, 300);
-
-            return;
+            state.first = false;
+            state.second = false;
+            state.third = false;
         }
     }
 
